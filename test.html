@@ -1,0 +1,85 @@
+<html>
+
+<head>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script>
+    
+        var Topics = ["cats", "llamas", "fish", "sheep", "goats"];
+        function setup() {
+            console.log("my Topics", Topics);
+            for (var x = 0; x < Topics.length; x++) {
+                console.log("my x", x);
+                console.log("my animal", Topics[x]);
+
+                var newButton = $("<button>");
+                newButton.text(Topics[x]);
+
+                $("#TopicButtons").append(newButton);
+            }
+
+            $("button").on("click", function () {
+                console.log("button click")
+                var animal = $(this).text();
+                var queryURL = "https://api.giphy.com/v1/gifs/search?q=" +
+                    animal + "&api_key=SlzDrpn3qyxl5Ses8om1EWi7XH1XMbEF";
+
+                $.ajax({
+                    url: queryURL,
+                    method: "GET"
+                })
+                    .then(function (response) {
+                        console.log("then okay")
+                        var results = response.data;
+                        console.log("response is ", response);
+                        $("#MyPictures").text("");
+                        for (var i = 0; i < results.length; i++) {
+                            if (i > 9) { continue; }
+                            console.log("URL is", response.data[i].url);
+                            var newImage = $("<img>");
+                            newImage.attr("src", response.data[i].images.original_still.url);
+                            newImage.attr("playing", false);
+                            newImage.attr("stillURL", response.data[i].images.original_still.url);
+                            newImage.attr("loopingURL", response.data[i].images.original.url);
+                            newImage.on("click", function () {
+                                // $(this).attr("src", $(this).attr("loopingURL"));
+                                if ($(this).attr("playing") == "true") {
+                                    console.log("stopping GIF");
+                                    $(this).attr("playing", false);
+                                    $(this).attr("src", $(this).attr("stillURL"));
+                                }
+                                else {
+                                    console.log("starting GIF");
+                                    $(this).attr("playing", true);
+                                    $(this).attr("src", $(this).attr("loopingURL"));
+
+
+                                }
+
+                            });
+
+                            $("#MyPictures").append(newImage);
+                            var newDiv = $("<div>");
+                            newDiv.text(response.data[i].rating);
+                            $("#MyPictures").append(newDiv);
+
+                        }
+                    })
+            })
+        }
+
+
+    </script>
+
+</head>
+
+<body onLoad="setup();">
+    <div id="TopicButtons"></div>
+    <div id="MyPictures">
+
+
+    </div>
+
+</body>
+
+</html>
